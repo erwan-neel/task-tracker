@@ -1,3 +1,5 @@
+package org.example.cli;
+
 public enum TaskCliAction {
     ADD("add"),
     UPDATE("update"),

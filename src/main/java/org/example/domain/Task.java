@@ -1,3 +1,5 @@
+package org.example.domain;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +20,7 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
-    enum Status {
+    public enum Status {
         TODO("todo"),
         IN_PROGRESS("in-progress"),
         DONE("done");
