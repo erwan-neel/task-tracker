@@ -1,4 +1,7 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Task {
     private int id;
@@ -36,6 +39,21 @@ public class Task {
         }
     }
 
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "{"
+                + "\"id\":" + "\"" + id + "\""
+                + ",\"description\":" + "\"" + description + "\""
+                + ",\"status\":" + "\"" + status.label + "\""
+                + ",\"createdAt\":" + "\"" + createdAt + "\""
+                + ",\"updatedAt\":" + "\"" + updatedAt + "\""
+                + "}";
+    }
+
     public static Task fromString(String task) {
         String[] keyValuePairs = task.replace("{", "")
                 .replace("}", "")
@@ -55,8 +73,20 @@ public class Task {
                 case "id": id = Integer.parseInt(value); break;
                 case "description": description = value; break;
                 case "status": status = Status.valueOfLabel(value); break;
-                case "created_at": createdAt = new Date(value); break;
-                case "updated_at": updatedAt = new Date(value); break;
+                case "createdAt":
+                    try {
+                        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                        createdAt = formatter.parse(value); break;
+                    } catch (ParseException e) {
+                        createdAt = new Date();
+                    }
+                case "updatedAt":
+                    try {
+                        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                        updatedAt = formatter.parse(value); break;
+                    } catch (ParseException e) {
+                        updatedAt = new Date();
+                    }
             }
         }
 

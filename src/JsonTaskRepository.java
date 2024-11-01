@@ -4,7 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,29 @@ public class JsonTaskRepository implements TaskRepository {
         if (!Files.exists(filePath)) {
             Files.createFile(filePath);
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[\n");
+
+        for (int i = 0; i < tasks.size(); i++) {
+            String jsonTask = tasks.get(i).toString() + ",";
+            if (i == tasks.size() - 1) {
+                jsonTask = jsonTask.substring(0, jsonTask.length() - 1);
+            }
+            sb.append(jsonTask);
+            sb.append("\n");
+        }
+
+        sb.append("]");
+        Files.writeString(filePath, sb.toString());
     }
 
     @Override
     public List<Task> getTasks() throws IOException {
+        if (!Files.exists(filePath)) {
+            return new ArrayList<>();
+        }
+
         String jsonTasks = Files.readString(filePath);
         String[] stringTasks = jsonTasks.replace("\n", "")
                 .replace("[", "")
