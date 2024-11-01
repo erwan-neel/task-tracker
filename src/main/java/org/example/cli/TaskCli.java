@@ -17,40 +17,30 @@ public class TaskCli {
         this.tasks = taskRepository.getTasks();
     }
 
-    public String execute(String... args) throws IOException, InvalidTaskCliActionException {
-        String outputMsg = "";
+    public void execute(String... args) throws IOException, InvalidTaskCliActionException {
 
         switch (Objects.requireNonNull(TaskCliAction.valueOfLabel(args[0]))) {
-            case ADD:
-                int outputId = add(args[1]);
-                outputMsg = "Task added successfully (ID: " + outputId + ")";
-                break;
-            case UPDATE:
-                break;
-            case DELETE:
-                break;
-            case MARK_IN_PROGRESS:
-                break;
-            case MARK_DONE:
-                break;
-            case LIST:
-                break;
+            case ADD: add(args[1]); break;
+            case UPDATE: break;
+            case DELETE: break;
+            case MARK_IN_PROGRESS: break;
+            case MARK_DONE: break;
+            case LIST: break;
             default:
                 throw new InvalidTaskCliActionException("\"" + args[0] + "\" is not a known action.");
         }
-
         taskRepository.saveTasks(tasks);
-
-        return outputMsg;
     }
 
-    private int add(String task) throws IOException {
+    private void add(String description) throws IOException {
         int lastId = 0;
         if (!tasks.isEmpty()) {
             lastId = tasks.get(tasks.size() -1).getId();
         }
-        tasks.add(new Task(++lastId, task.replace("\"", ""), Task.Status.IN_PROGRESS, new Date(), null));
+        Task newTask = new Task(++lastId, description.replace("\"", ""), Task.Status.IN_PROGRESS,
+                new Date(), null);
+        tasks.add(newTask);
 
-        return lastId;
+        System.out.println("Task added successfully (ID: " + lastId + ")");
     }
 }
