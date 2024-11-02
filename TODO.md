@@ -4,3 +4,4 @@
 - affichage help des actions de la cli
 - rédiger le readme
 - améliorer l'affichage de la liste
+- demander confirmation avant de supprimer ?

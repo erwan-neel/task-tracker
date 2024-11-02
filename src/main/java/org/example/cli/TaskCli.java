@@ -33,7 +33,13 @@ public class TaskCli {
                 add(args[1]);
                 break;
             case UPDATE: break;
-            case DELETE: break;
+            case DELETE:
+                if (args.length < 2) {
+                    System.out.println("Usage: java -jar TaskCli.jar delete [id]");
+                    return;
+                }
+                delete(args[1]);
+                break;
             case MARK_IN_PROGRESS: break;
             case MARK_DONE: break;
             case LIST:
@@ -47,6 +53,10 @@ public class TaskCli {
                 throw new InvalidTaskCliActionException("\"" + args[0] + "\" is not a known action.");
         }
         taskRepository.saveTasks(tasks);
+    }
+
+    private void delete(String id) {
+        tasks.removeIf(task -> Objects.equals(task.getId(), Integer.parseInt(id)));
     }
 
     private void list() {
