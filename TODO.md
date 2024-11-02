@@ -1,3 +1,6 @@
 - Gestion des cas d'erreur sur la commande add :
   - Ne pas passer d'argument à la CLI
 - Gérer l'affichage des tasks
+- affichage help des actions de la cli
+- rédiger le readme
+- améliorer l'affichage de la liste

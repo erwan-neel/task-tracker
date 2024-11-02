@@ -19,25 +19,52 @@ public class TaskCli {
 
     public void execute(String... args) throws IOException, InvalidTaskCliActionException {
 
+        if (args.length < 1) {
+            System.out.println("Usage: java -jar TaskCli.jar <task name>");
+            return;
+        }
+
         switch (Objects.requireNonNull(TaskCliAction.valueOfLabel(args[0]))) {
-            case ADD: add(args[1]); break;
+            case ADD:
+                if (args.length < 2) {
+                    System.out.println("Usage: java -jar TaskCli.jar add [description]");
+                    return;
+                }
+                add(args[1]);
+                break;
             case UPDATE: break;
             case DELETE: break;
             case MARK_IN_PROGRESS: break;
             case MARK_DONE: break;
-            case LIST: break;
+            case LIST:
+                if (args.length > 1) {
+                    listByStatus(Task.Status.valueOfLabel(args[1]));
+                } else {
+                    list();
+                }
+                break;
             default:
                 throw new InvalidTaskCliActionException("\"" + args[0] + "\" is not a known action.");
         }
         taskRepository.saveTasks(tasks);
     }
 
-    private void add(String description) throws IOException {
+    private void list() {
+        tasks.forEach(System.out::println);
+    }
+
+    private void listByStatus(Task.Status status) {
+        tasks.stream()
+                .filter(task -> status.equals(task.getStatus()))
+                .forEach(System.out::println);
+    }
+
+    private void add(String description) {
         int lastId = 0;
         if (!tasks.isEmpty()) {
             lastId = tasks.get(tasks.size() -1).getId();
         }
-        Task newTask = new Task(++lastId, description.replace("\"", ""), Task.Status.IN_PROGRESS,
+        Task newTask = new Task(++lastId, description.replace("\"", ""), Task.Status.TODO,
                 new Date(), null);
         tasks.add(newTask);
 

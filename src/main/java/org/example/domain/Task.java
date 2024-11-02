@@ -27,7 +27,7 @@ public class Task {
 
         public final String label;
 
-        private Status(String label) {
+        Status(String label) {
             this.label = label;
         }
 
@@ -43,6 +43,10 @@ public class Task {
 
     public int getId() {
         return id;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     @Override
