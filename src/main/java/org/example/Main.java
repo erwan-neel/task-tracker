@@ -10,6 +10,6 @@ public class Main {
     public static void main(String[] args) throws IOException, InvalidTaskCliActionException {
         JsonTaskRepository jsonTaskRepository = new JsonTaskRepository("tasks.json");
         TaskCli cli = new TaskCli(jsonTaskRepository);
-        cli.execute(args);
+        cli.execute();
     }
 }

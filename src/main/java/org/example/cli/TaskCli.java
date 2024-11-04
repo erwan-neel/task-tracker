@@ -2,65 +2,110 @@ package org.example.cli;
 
 import org.example.exception.InvalidTaskCliActionException;
 import org.example.domain.Task;
+import org.example.exception.InvalidTaskStatusException;
+import org.example.exception.TaskNotFoundException;
 import org.example.repository.TaskRepository;
 
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.System.in;
+
 public class TaskCli {
 
-    private List<Task> tasks;
+    private final List<Task> tasks;
     private final TaskRepository taskRepository;
+    private final Scanner scanner;
 
     public TaskCli(TaskRepository taskRepository) throws IOException {
         this.taskRepository = taskRepository;
         this.tasks = taskRepository.getTasks();
+        this.scanner = new Scanner(in);
     }
 
-    public void execute(String... args) throws IOException, InvalidTaskCliActionException {
-
-        if (args.length < 1) {
-            System.out.println("Usage: java -jar TaskCli.jar <task name>");
-            return;
+    public void execute() throws IOException {
+        printHelpMenu();
+        String command;
+        while(!(command = scanner.next()).equals("exit")) {
+            try {
+                switch (TaskCliAction.valueOfLabel(command)) {
+                    case ADD: add(); break;
+                    case DELETE: delete(); break;
+                    case LIST: list(); break;
+                    case UPDATE: update(); break;
+                    case HELP: printHelpMenu(); break;
+                    case MARK_IN_PROGRESS,
+                         MARK_DONE: break;
+                }
+            } catch (InvalidTaskCliActionException
+                     |TaskNotFoundException
+                     |NumberFormatException  e) {
+                System.out.println(e.getMessage());
+                System.out.println("Type 'help' to see the list of available commands.");
+                // just to flush the rest of the line we don't want
+                scanner.nextLine();
+            }
         }
 
-        switch (Objects.requireNonNull(TaskCliAction.valueOfLabel(args[0]))) {
-            case ADD:
-                if (args.length < 2) {
-                    System.out.println("Usage: java -jar TaskCli.jar add [description]");
-                    return;
-                }
-                add(args[1]);
-                break;
-            case UPDATE: break;
-            case DELETE:
-                if (args.length < 2) {
-                    System.out.println("Usage: java -jar TaskCli.jar delete [id]");
-                    return;
-                }
-                delete(args[1]);
-                break;
-            case MARK_IN_PROGRESS: break;
-            case MARK_DONE: break;
-            case LIST:
-                if (args.length > 1) {
-                    listByStatus(Task.Status.valueOfLabel(args[1]));
-                } else {
-                    list();
-                }
-                break;
-            default:
-                throw new InvalidTaskCliActionException("\"" + args[0] + "\" is not a known action.");
-        }
+        System.out.println("Tasks saving in progress...");
         taskRepository.saveTasks(tasks);
+        System.out.println("Tasks saving done. See you later ;)");
     }
 
-    private void delete(String id) {
-        tasks.removeIf(task -> Objects.equals(task.getId(), Integer.parseInt(id)));
+    private void printHelpMenu() {
+        System.out.println("Please select one of the following options:");
+        System.out.println("\t- add: Add a new task");
+        System.out.println("\t- delete: Delete a task");
+        System.out.println("\t- list: List all tasks");
+        System.out.println("\t- update: Update a task");
+        System.out.println("\t- mark in-progress: Mark a task in in-progress");
+        System.out.println("\t- mark done: Mark a task done");
+        System.out.println("\t- help: Display this help menu");
+        System.out.println("\t- exit: Exit the program");
+    }
+
+    private void update() throws TaskNotFoundException {
+        String taskId = "";
+        int id;
+        try {
+            taskId = scanner.next();
+            id = Integer.parseInt(taskId);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException(String.format("'%s' is not a valid id.", taskId));
+        }
+        String description = scanner.nextLine();
+
+        Task taskToUpdate = tasks.stream()
+                .filter(task -> task.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (taskToUpdate != null) {
+            taskToUpdate.setDescription(description.trim());
+            System.out.printf("Task %d has been successfully updated%n", id);
+        } else {
+            throw new TaskNotFoundException(String.format("Task with id '%d' not found", id));
+        }
+
+    }
+
+    private void delete() {
+        int id = scanner.nextInt();
+        tasks.removeIf(task -> Objects.equals(task.getId(), id));
     }
 
     private void list() {
-        tasks.forEach(System.out::println);
+        String status = scanner.nextLine();
+        if (status.trim().isEmpty()) {
+            tasks.forEach(System.out::println);
+        } else {
+            try {
+                listByStatus(Task.Status.valueOfLabel(status.trim()));
+            } catch (InvalidTaskStatusException e) {
+                System.out.printf("Invalid task status: '%s'%n", status.trim());
+                tasks.forEach(System.out::println);
+            }
+        }
     }
 
     private void listByStatus(Task.Status status) {
@@ -69,15 +114,16 @@ public class TaskCli {
                 .forEach(System.out::println);
     }
 
-    private void add(String description) {
+    private void add() {
+        String description = scanner.nextLine().trim();
         int lastId = 0;
         if (!tasks.isEmpty()) {
             lastId = tasks.get(tasks.size() -1).getId();
         }
-        Task newTask = new Task(++lastId, description.replace("\"", ""), Task.Status.TODO,
+        Task newTask = new Task(++lastId, description, Task.Status.TODO,
                 new Date(), null);
         tasks.add(newTask);
 
-        System.out.println("Task added successfully (ID: " + lastId + ")");
+        System.out.printf("Task added successfully (ID: %d)%n", lastId);
     }
 }
