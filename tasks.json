@@ -2,5 +2,6 @@
 {"id":"1","description":"coucou","status":"in-progress","createdAt":"Fri Nov 01 17:29:46 CET 2024","updatedAt":"Mon Nov 04 07:58:03 CET 2024"},
 {"id":"2","description":"teste","status":"done","createdAt":"Fri Nov 01 17:54:59 CET 2024","updatedAt":"Fri Nov 01 18:17:05 CET 2024"},
 {"id":"8","description":"Promener Migly dans le parc Heller","status":"in-progress","createdAt":"Fri Nov 01 18:24:29 CET 2024","updatedAt":"Fri Nov 01 18:25:12 CET 2024"},
-{"id":"9","description":"géniale cette nouvelle version","status":"todo","createdAt":"Fri Nov 01 18:25:12 CET 2024","updatedAt":"Mon Nov 04 08:46:17 CET 2024"}
+{"id":"9","description":"géniale cette nouvelle version","status":"todo","createdAt":"Fri Nov 01 18:25:12 CET 2024","updatedAt":"Mon Nov 04 08:46:17 CET 2024"},
+{"id":"10","description":"Faire mon premier commit depuis windows","status":"todo","createdAt":"Wed Nov 13 13:54:47 CET 2024","updatedAt":"null"}
 ]
