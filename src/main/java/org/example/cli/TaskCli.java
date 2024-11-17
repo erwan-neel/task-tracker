@@ -12,7 +12,6 @@ import java.util.*;
 import static java.lang.System.in;
 
 public class TaskCli {
-
     private final List<Task> tasks;
     private final TaskRepository taskRepository;
     private final Scanner scanner;
@@ -54,12 +53,13 @@ public class TaskCli {
 
     private void printHelpMenu() {
         System.out.println("Please select one of the following options:");
-        System.out.println("\t- add: Add a new task");
-        System.out.println("\t- delete: Delete a task");
+        System.out.println("\t- add <description>: Add a new task");
+        System.out.println("\t- delete <id>: Delete task with the given <id>");
         System.out.println("\t- list: List all tasks");
-        System.out.println("\t- update: Update a task");
-        System.out.println("\t- mark in-progress: Mark a task in in-progress");
-        System.out.println("\t- mark done: Mark a task done");
+        System.out.println("\t- list <status>: List all tasks with the given <status>");
+        System.out.println("\t- update <id> <description>: Update task <id> with the given <description>");
+        System.out.println("\t- mark-in-progress <id>: Mark the task <id> as in progress");
+        System.out.println("\t- mark-done <id>: Mark the task <id> as done");
         System.out.println("\t- help: Display this help menu");
         System.out.println("\t- exit: Exit the program");
     }
@@ -67,31 +67,31 @@ public class TaskCli {
     private void update() throws TaskNotFoundException {
         String taskId = "";
         int id;
+
         try {
             taskId = scanner.next();
             id = Integer.parseInt(taskId);
         } catch (NumberFormatException e) {
             throw new NumberFormatException(String.format("'%s' is not a valid id.", taskId));
         }
-        String description = scanner.nextLine();
 
+        String description = scanner.nextLine();
         Task taskToUpdate = tasks.stream()
                 .filter(task -> task.getId() == id)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new TaskNotFoundException(String.format("Task with id '%d' not found", id)));
+        taskToUpdate.setDescription(description.trim());
+        System.out.printf("Task %d has been successfully updated%n", id);
+    }
 
-        if (taskToUpdate != null) {
-            taskToUpdate.setDescription(description.trim());
-            System.out.printf("Task %d has been successfully updated%n", id);
+    private void delete() throws TaskNotFoundException {
+        int id = scanner.nextInt();
+        boolean isTaskRemoved = tasks.removeIf(task -> Objects.equals(task.getId(), id));
+        if (isTaskRemoved) {
+            System.out.printf("Task %d has been successfully removed", id);
         } else {
             throw new TaskNotFoundException(String.format("Task with id '%d' not found", id));
         }
-
-    }
-
-    private void delete() {
-        int id = scanner.nextInt();
-        tasks.removeIf(task -> Objects.equals(task.getId(), id));
     }
 
     private void list() {
@@ -123,7 +123,6 @@ public class TaskCli {
         Task newTask = new Task(++lastId, description, Task.Status.TODO,
                 new Date(), null);
         tasks.add(newTask);
-
         System.out.printf("Task added successfully (ID: %d)%n", lastId);
     }
 }
