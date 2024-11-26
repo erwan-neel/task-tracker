@@ -8,9 +8,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Task {
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
     private final int id;
     private String description;
-    private final Status status;
+    private Status status;
     private final Date createdAt;
     private Date updatedAt;
 
@@ -30,6 +31,11 @@ public class Task {
         return status;
     }
 
+    public void setStatus(Status status) {
+        this.status = status;
+        update();
+    }
+
     public String setDescription(String description) {
         this.description = description.replace("\"", "");
         update();
@@ -43,12 +49,14 @@ public class Task {
 
     @Override
     public String toString() {
+        String updateValue = updatedAt == null ? "" : updatedAt.toString();
+
         return "{"
                 + "\"id\":" + "\"" + id + "\""
                 + ",\"description\":" + "\"" + description + "\""
                 + ",\"status\":" + "\"" + status.label + "\""
                 + ",\"createdAt\":" + "\"" + createdAt + "\""
-                + ",\"updatedAt\":" + "\"" + updatedAt + "\""
+                + ",\"updatedAt\":" + "\"" + updateValue + "\""
                 + "}";
     }
 
@@ -68,31 +76,32 @@ public class Task {
             String key = keyValuePair.substring(0, keyValuePair.indexOf(":")).trim();
             String value = keyValuePair.substring(keyValuePair.indexOf(":") + 1).trim();
             switch (key) {
-                case "id": id = Integer.parseInt(value); break;
-                case "description": description = value; break;
-                case "status":
+                case "id" -> id = Integer.parseInt(value);
+                case "description" -> description = value;
+                case "status" -> {
                     try {
                         status = Status.valueOfLabel(value);
                     } catch (InvalidTaskStatusException e) {
                         throw new IllegalArgumentException(e);
-                    } break;
-                case "createdAt":
+                    }
+                }
+                case "createdAt" -> {
                     try {
-                        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-                        createdAt = formatter.parse(value); break;
+                        createdAt = DATE_FORMATTER.parse(value);
                     } catch (ParseException e) {
                         createdAt = new Date();
-                    } break;
-                case "updatedAt":
-                    try {
-                        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-                        updatedAt = formatter.parse(value); break;
-                    } catch (ParseException e) {
-                        updatedAt = new Date();
                     }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unexpected value: " + key);
+                }
+                case "updatedAt" -> {
+                    if (!value.isEmpty()) {
+                        try {
+                            updatedAt = DATE_FORMATTER.parse(value);
+                        } catch (ParseException e) {
+                            updatedAt = new Date();
+                        }
+                    }
+                }
+                default -> throw new IllegalArgumentException("Unexpected value: " + key);
             }
         }
 

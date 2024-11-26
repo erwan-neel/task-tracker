@@ -28,13 +28,13 @@ public class TaskCli {
         while(!(command = scanner.next()).equals("exit")) {
             try {
                 switch (TaskCliAction.valueOfLabel(command)) {
-                    case ADD: add(); break;
-                    case DELETE: delete(); break;
-                    case LIST: list(); break;
-                    case UPDATE: update(); break;
-                    case HELP: printHelpMenu(); break;
-                    case MARK_IN_PROGRESS,
-                         MARK_DONE: break;
+                    case ADD -> add();
+                    case DELETE -> delete();
+                    case LIST -> list();
+                    case UPDATE -> update();
+                    case MARK_IN_PROGRESS -> markInProgress();
+                    case MARK_DONE -> markDone();
+                    case HELP -> printHelpMenu();
                 }
             } catch (InvalidTaskCliActionException
                      |TaskNotFoundException
@@ -92,6 +92,26 @@ public class TaskCli {
         } else {
             throw new TaskNotFoundException(String.format("Task with id '%d' not found", id));
         }
+    }
+
+    private void markInProgress() throws TaskNotFoundException {
+        int id = scanner.nextInt();
+        Task taskToUpdate = tasks.stream()
+                .filter(task -> task.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(String.format("Task with id '%d' not found", id)));
+        taskToUpdate.setStatus(Task.Status.IN_PROGRESS);
+        System.out.printf("Task %d has been successfully updated as in progress.%n", id);
+    }
+
+    private void markDone() throws TaskNotFoundException {
+        int id = scanner.nextInt();
+        Task taskToUpdate = tasks.stream()
+                .filter(task -> task.getId() == id)
+                .findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(String.format("Task with id '%d' not found", id)));
+        taskToUpdate.setStatus(Task.Status.DONE);
+        System.out.printf("Task %d has been successfully updated as done.%n", id);
     }
 
     private void list() {
